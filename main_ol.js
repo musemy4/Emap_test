@@ -25,35 +25,14 @@ import Static from 'ol/source/ImageStatic';
 import {getCenter} from 'ol/extent';
 import { pointerMove } from 'ol/events/condition';
 
-//emap 계수선
-import Graticule from 'ol/layer/Graticule';
-import {Fill, Icon, RegularShape, Stroke, Style} from 'ol/style';
+import {Icon, Stroke, Style} from 'ol/style';
 import Point from 'ol/geom/Point';
-import { fromLonLat } from 'ol/proj';
-import { renderDeclutterItems } from 'ol/render';
 import LineString from 'ol/geom/LineString';
 
-
-window.addEventListener('DOMContentLoaded', function(){ //실행될 코드
-  document.getElementById('emapPop').style.display = 'none';
-  document.getElementById('createBtn').addEventListener("click", function(e){
-    e.stopPropagation();
-    createDraw();
-  });
-  // printMapLayers();
-});
-
-function printMapLayers(){
+function printMapLayers(when){
+  console.log("=== "+when+" ===");
   console.log(map.getLayers().array_);
   if(map.getLayers().array_[1]!=undefined)console.log(map.getLayers().array_[1].getSource().getFeatures());
-}
-
-window.onkeyup = function(e) {
-	let key = e.keyCode ? e.keyCode : e.which;
-
-	if(key == 27) {
-    emapPopclose();
-	}
 }
 
 
@@ -71,9 +50,11 @@ let mousePositionCtrl = new MousePosition({
 });
 
 
-///////////////////////////////
-///////    MAP VIEW    ////////
-///////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////
+/////////////////////  D U M M Y   D A T A  ////////////////////////
+////////////////////////////////////////////////////////////////////
 
 // 예시 DATA,  ./example.json 과 같은 내용
 let statesData = {"type":"FeatureCollection","features":[
@@ -84,10 +65,86 @@ let statesData = {"type":"FeatureCollection","features":[
       "name":"innodep", 
       "id": "126.891435", 
       "floor": {
-        "1f":[[50,160],[190,210],[250,330]],
-        "2f":[[400,400],[500,500]],
-        "3f":[[600,600],[700,700],[800,800]],
-        "4f":[[900,0]]
+        "1f":[
+          {
+            "id":"126d891435e1f1",
+            "name":"1f north parking",
+            "rotatProp":1,
+            "coordinate":[50,160]
+          },
+          {
+            "id":"126d891435e1f2",
+            "name":"1f safefy stairway",
+            "rotatProp":4,
+            "coordinate":[190,210]
+          },
+          {
+            "id":"126d891435e1f3",
+            "name":"1f main entrance1",
+            "rotatProp":2,
+            "coordinate":[250,330]
+          }
+            ],
+        "2f":[
+          {
+            "id":"126d891435e2f1",
+            "name":"",
+            "rotatProp":15,
+            "coordinate":[130,360]
+          },
+          {
+            "id":"126d8914352f2",
+            "name":"",
+            "rotatProp":2,
+            "coordinate":[730,580]
+          }
+            ],
+        "3f":[
+          {
+            "id":"126d891435e3f1",
+            "name":"",
+            "rotatProp":5,
+            "coordinate":[220,580]
+          },
+          {
+            "id":"126d891435e3f2",
+            "name":"",
+            "rotatProp":9,
+            "coordinate":[160,290]
+          },
+          {
+            "id":"126d891435e3f3",
+            "name":"",
+            "rotatProp":12,
+            "coordinate":[500,60]
+          }
+            ],
+        "4f":[
+          {
+            "id":"126d891435e3f1",
+            "name":"",
+            "rotatProp":15,
+            "coordinate":[150,10]
+          },
+          {
+            "id":"126d891435e3f2",
+            "name":"",
+            "rotatProp":18,
+            "coordinate":[370,280]
+          },
+          {
+            "id":"126d891435e3f3",
+            "name":"",
+            "rotatProp":18,
+            "coordinate":[350,105]
+          },
+          {
+            "id":"126d891435e3f3",
+            "name":"",
+            "rotatProp":2,
+            "coordinate":[500,105]
+          }
+            ]
       }
     },
     "geometry":{
@@ -107,6 +164,35 @@ let statesData = {"type":"FeatureCollection","features":[
   
 ]};
 
+
+////////////////////////////////////////////////////////////////////
+///////////////////// D E F A U L T   S E T ////////////////////////
+////////////////////////////////////////////////////////////////////
+
+
+
+
+window.addEventListener('DOMContentLoaded', function(){ //실행될 코드
+  document.getElementById('emapPop').style.display = 'none';
+  //emap draw 리스너 달아주기
+  document.getElementById('createBtn').addEventListener("click", function(e){
+    e.stopPropagation();
+    createDraw();
+  });
+  printMapLayers("키자마자");
+});
+
+//ESC로 emap을 닫을수 있다
+window.onkeyup = function(e) {
+  let key = e.keyCode ? e.keyCode : e.which;
+  
+	if(key == 27) {
+    emapPopclose();
+	}
+}
+
+
+
 const base = new TileLayer({
   source: new XYZSource({
     url: 'http://xdworld.vworld.kr:8080/2d/Base/202002/{z}/{x}/{y}.png'
@@ -114,12 +200,12 @@ const base = new TileLayer({
 })
 
 
-var emapJson = new VectorSource({
+let emapJson = new VectorSource({
   features: new GeoJSON().readFeatures(statesData)
 });
 
 
-var emapjsonLayer  = new VectorLayer({
+let emapjsonLayer  = new VectorLayer({
   source: emapJson
 });
 
@@ -136,22 +222,22 @@ let map = new Map({
 
 
 
-///////////////////////////////////////////
-///////    Draw and ADD GeoJson    ////////
-///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+///////////////////// D E F A U L T   S E T ////////////////////////
+////////////////////////////////////////////////////////////////////
 
 let draw;
+let createBtn = document.getElementById('createBtn');
 
-
+//'EMAP을 만들자'버튼을 누르면
 function createDraw(){
+    createBtn.style.backgroundColor='darkturquoise';
     addInteraction();
 }
 
-
-
-// Add over interaction that draw hull in a layer
 let source = new VectorSource({ wrapX: false });
 
+//draw.on('drawend') 보다 확실하다
 source.on('addfeature', function(evt){
   if(saveNewEmap(evt)){//true이면
     console.log("new map added!");
@@ -160,11 +246,11 @@ source.on('addfeature', function(evt){
   }
 })
 
+
+
 let vector;
 let draw_ing = false;
 
- 
- 
 function addInteraction() {
   //source에 그려진 값을 담는다
   draw = new Draw({
@@ -183,32 +269,26 @@ function addInteraction() {
   draw.on('drawend', function(evt){
     map.removeInteraction(draw);
     console.log("draw End ==");
-    
+    createBtn.style.backgroundColor='brown';
   })
 }
   
 function saveNewEmap(evt){
   let feature = evt.feature;
-  let uniqueId = feature.getGeometry().flatCoordinates[0]+"";
+  let uniqueId = feature.getGeometry().flatCoordinates[0]+"";//임으로 하긴했음
   let emapName = prompt("이름을 무엇으로 저장하시겠습니까?", "e-map의 새이름");
 
-  if(emapName != null && emapName.length > 0 ){
-
+  //////////// emapName이 통과되어야 true //////////////
+  if(emapName != null && emapName.length > 0 ){ 
     feature.setProperties({'name':emapName, 'id': uniqueId});//'assets'는 자산관리를 눌렀을때 setProperties하기
     // *** 기본 layer를 지우고 1)
     map.removeLayer(map.getLayers().array_[1]);
   
     let features = [];
-    features.push(feature);
-    // console.log(features);
-    
-    // //기존의 것
-    // console.log(statesData);
-
-    // console.log("before) add features start === ");
-    // + 원래 있던것과 합쳐준다
+    features.push(feature); //새로 만들어진 feature을 담고 1)
+   
+    // + 원래 있던것과 합쳐준다 2)
     new GeoJSON().readFeatures(statesData).forEach((ele)=>features.push(ele));
-    
     
     // = 결과값
     statesData =JSON.parse(new GeoJSON().writeFeatures(features));
@@ -230,15 +310,15 @@ function saveNewEmap(evt){
     source.removeFeature(feature);
     return false;
   }
-  
 }
 
 
 
 
-/////////////////////////////////////
-///////    select Features   ////////
-/////////////////////////////////////
+/////////////////////////////////////////////////////////////
+///////    select Features : 선택과 hover가 가능하게  ////////
+////////////////////////////////////////////////////////////
+
 
 // hover 효과내기
 let pointerselect = new Select({
@@ -258,7 +338,8 @@ let changeInteraction = function () {
 changeInteraction();
 
 //클릭했을때 팝업으로 연동
-let selected = null;
+let selected;
+let selectedEmap;
 
 map.on('singleclick', function(e){
   e.stopPropagation();
@@ -272,28 +353,26 @@ map.on('singleclick', function(e){
   })
 
   
-  if(selected && !draw_ing){ //feature가 있으면
-    popEmap(selected);
-    console.log("1)selected.values_.id::"+selected.values_.id);
-    selectedId = selected.values_.id;
-    console.log(selectedId);
+  if(selected!=null && !draw_ing){ //drawing이 끝났으면 interaction 겹치는거 막아줌**
+    selectedEmap = selected.values_;
+    popEmap(selectedEmap);
   }
 
 })
 
-////////////////////////////////
-///////    EMAP VIEW    ////////
-////////////////////////////////
+////////////////////////////////////////////////////////////////////
+/////////////////////    E M A P   S E T    ////////////////////////
+////////////////////////////////////////////////////////////////////
 
-var extent = [0, 0, 1000, 600];
-var projection = new Projection({
+let extent = [0, 0, 1000, 600];
+let projection = new Projection({
   code: 'xkcd-image',
   units: 'pixels',
   extent: extent,
   worldExtent: extent
 });
 
-var emap = new Map({
+let emap = new Map({
   layers: [
     // new ImageLayer({
     //   source: new Static({
@@ -316,14 +395,11 @@ var emap = new Map({
   }),
 });
 
-let emapLayer;
-let lineLayer;
-let assetLayer;
+let emapLayer;  // 1.emap의 jpg, png 혹은 svg 파일
+let lineLayer;  // 2.모눈종이 효과.. 100단위로 
+let assetLayer; // 3.자산표현
 
 
-///////////////1.emapLayer //////////////////////
-      /////////2.lineLayer /////////
-      /////////3.assetLayer /////////
 function getEmap(coordinateX, floor){
   
   if(emapLayer!=null){
@@ -336,9 +412,17 @@ function getEmap(coordinateX, floor){
     emap.removeLayer(assetLayer);
   }
 
+  if(floor==undefined){
+    document.querySelector('.exp').style.display = "block";
+    return;
+  }
+ //////////////// 1.emap의 jpg, png 혹은 svg 파일  //////////////////
+  
+ let emapUrl='';
   //여기서 오류가 나지만 api화 되면 오류나지 않을것~~
-  let emapUrl = "./emap/" + coordinateX +"_"+floor+".jpg";
-
+  //이건 임의에요
+  if(coordinateX==126.891435) emapUrl = "./emap/" + coordinateX +"_"+floor+".svg";
+  else emapUrl = "./emap/" + coordinateX +"_"+floor+".jpg";
   
   emapLayer = new ImageLayer({
     source: new Static({
@@ -352,7 +436,7 @@ function getEmap(coordinateX, floor){
 
 
 
-  //////////////// 2.경 계 선 //////////////////
+  //////////////// 2.모눈종이 효과.. 100단위로  //////////////////
 
 
   let lineStyle = [
@@ -366,7 +450,7 @@ function getEmap(coordinateX, floor){
   ];
 
   // var extent = [0, 0, 1000, 800];
-  let lines = [];
+  let lines = []; //features
   let wid = extent[2];
   let hei = extent[3]
   let interval = 100;
@@ -387,61 +471,62 @@ function getEmap(coordinateX, floor){
     })
   });
 
-  lineLayer.setStyle(lineStyle);
-
-
+  lineLayer.setStyle(lineStyle); //레이어 전체에 적용
   emap.addLayer(lineLayer);
 
 
 
   
-  //////////////// 2.경 계 선  끄읏//////////////////
 
 
-  //////////////// 3.자산 뿌리기  //////////////////
+  //////////////// 3.자산표현  //////////////////
   getFloorAsset(floor);
 
 }
 
-function getFloorAsset(floor){
-  console.log(floor);
-  console.log(selectedBuildin);
-
-  let assetStyle = new Style({
-    image: new Icon({
-      anchor: [0.5, 0.5],
-      anchorXUnits: 'fraction',
-      anchorYUnits: 'fraction',
-      src: 'marker/asset.png',
-      size: [400, 400],
-      scale: 0.1
-    }),
-  });
+function getFloorAsset(floorNow){
+  console.log(floorNow);
 
   // var extent = [0, 0, 1000, 800];
-  let floors = selectedBuildin.get('floor');
-  console.log(floors);
-  console.log(floors[floor+"f"]);
-  console.log(floors[floor+"f"].length);
+  let floors = selectedEmap.floor;
+  // console.log(floors);  
+  // console.log(floor+"f에는");
+  // console.log(floors[floor+"f"].length);
+  // console.log(floors[floor+"f"].length+"개의 자산이있습니다");
   let assets = [];
 
-  for(let i=0;i<floors[floor+"f"].length;i++){//가로줄
-    let f = new Feature({geometry: new Point(floors[floor+"f"][i])});
+  for(let i=0;i<floors[floorNow+"f"].length;i++){//자산 갯수만큼돌리쟈
+    let f = new Feature({geometry: new Point(floors[floorNow+"f"][i].coordinate)});
+
+    //각각 다른 스타일을 가진다. 예를들면 rotation
+    // console.log(floors[floor+"f"][i].rotatProp);
+    f.setStyle(createAssetStyle(floors[floorNow+"f"][i].rotatProp));
     assets.push(f);
   }
   
   assetLayer = new VectorLayer({
     source: new VectorSource({
-      features: assets
+      features: assets,
     })
   });
 
-  assetLayer.setStyle(assetStyle);
   emap.addLayer(assetLayer);
-
-  printMapLayers();
 }
 
+function createAssetStyle(rotatProp){
+  return new Style({
+    image: new Icon({
+      anchor: [0.5, 0.5],
+      anchorXUnits: 'fraction',
+      anchorYUnits: 'fraction',
+      src: 'marker/asset.svg',
+      rotation: Math.PI/rotatProp,
+      size: [500, 500],
+      scale: 0.1
+    }),
+  });
+
+}
 
 
 ///////////////////////EMAP DRAGGABLE//////////////////////////
@@ -484,26 +569,30 @@ function dragElement(elmnt) {
 //////////////////////////////////////////////////////////
 
 let emapDelete_flag= false;
-let selectedId;
-let selectedBuildin;
+// let selectedId;
+// let selectedBuildin;
 
+function emapPopclose(){
+  let emapPop = document.querySelector('#emapPop');
+  emapPop.style.display="none";
+}
 
-function popEmap(selected){ // 1)
-
+function popEmap(selectedEmap){ // 1)
+  //드래그 가능하게 처리
+  console.log(selectedEmap); //{geometry: Polygon, name: "innodep", id: "126.891435", floor: {…}}
   dragElement(document.getElementById('emapPop'));
-
-
-  let geometry = selected.getGeometry();
-  selectedId = geometry.flatCoordinates[0];
-  console.log("2)popMapid::"+selectedId);
-  
+  let selectedEmapId = selectedEmap.id;
+  console.log("선택된 emap IDD:"+selectedEmapId);
+  let selectedEmapName =  selectedEmap.name;
+  let selectedEmapfloor =  selectedEmap.floor;
+  let title = document.querySelector('#emapPop_title');
 
   if(!emapDelete_flag){
     document.getElementById('emapDelete').addEventListener("click", function(e){
         // e.stopPropagation();
         // e.preventDefault();
         e.stopImmediatePropagation();
-        emapDelete(selectedId);
+        emapDelete();
     });
   }
  
@@ -512,30 +601,21 @@ function popEmap(selected){ // 1)
   let emapPopClose = document.querySelector('#emapPopClose');
   emapPopClose.onclick=emapPopclose;
   
-  // let geometry = e.target.feature.geometry;
-  
-  selectedBuildin = selected;
-  let getName = selectedBuildin.get('name');
-  let floor = selectedBuildin.get('floor');
-  let title = document.querySelector('#emapPop_title');
-  
   console.log("floor>>")
-  console.log(floor);
+  console.log(selectedEmapfloor);
 
-  if(floor==undefined){
-    document.querySelector('.exp').style.display = "block";
-    title.innerHTML = `[층정보없음] ${getName} / ${selectedId}`;
+  if(selectedEmapfloor==undefined){
+    getEmap(selectedEmapId, undefined); 
+    title.innerHTML = `[층정보없음]  ${selectedEmapName} / <span id="selectedId">${selectedEmapId}</span>`;
   } else {
     /*get emap 
     **********
     */
-    getEmap(selectedId, 1); 
-
-
+    getEmap(selectedEmapId, 1); 
 
     document.querySelector('.exp').style.display = "none";
-
-    let floorLength = Object.keys(floor).length;
+    
+    let floorLength = Object.keys(selectedEmapfloor).length;
     console.log(floorLength+"개 층입니다.");
     let floorBtn = document.getElementById('floorBtn');
 
@@ -552,16 +632,14 @@ function popEmap(selected){ // 1)
     }
 
     //리스너 달아주기
-    document.querySelectorAll('#floorBtn button').forEach((ele,idx)=>{
+    document.querySelectorAll('#floorBtn button').forEach((ele, idx)=>{
       ele.addEventListener('click', function(e){
         e.stopPropagation();
         console.log((idx+1));
         changeFloorEmap((idx+1));
       });
     })
-
-
-    title.innerHTML = `[<span id='f_title'>1F</span>] ${getName} / <span id="selectedId">${selectedId}</span>`;
+    title.innerHTML = `[<span id='f_title'>1F</span>] ${selectedEmapName} / <span id="selectedId">${selectedEmapId}</span>`;
     // title.innerHTML = '['+selectedId+'] '+getName+"/"+floor+"층 자산"+assets+"개";
   }
 }
@@ -576,23 +654,21 @@ function changeFloorEmap(floor){
 
   document.getElementById('f_title').innerHTML = floor+"F";
   //emap url 바꿔주기
-  getEmap(selectedId, floor);
+  getEmap(selectedEmap.id, floor);
 
 }
 
-function emapPopclose(){
-    let emapPop = document.querySelector('#emapPop');
-    emapPop.style.display="none";
-}
-  
+
 
 
 //////////////////////////////////
 ///////    EMAP Delete    ////////
 //////////////////////////////////
 
-function emapDelete(id){//geometry == 해당 id
-  printMapLayers();
+function emapDelete(){//geometry == 해당 id
+  let selectedEmapId = selectedEmap.id;
+  console.log(selectedEmapId);
+  printMapLayers("지우기전");
   let deleteConfirm = prompt('좌표에 등록된 emap을 삭제하시려면 관리자 비밀번호를 입력하세요','');
 
   if(deleteConfirm =='1234'){ //확인 누르면 true 반환
@@ -604,11 +680,11 @@ function emapDelete(id){//geometry == 해당 id
   
     let features = [];
   
-    console.log("selected_id: "+id);
+    console.log("selectedEmapId: "+selectedEmapId);
 
     // + 원래 있던것과 합쳐준다
     new GeoJSON().readFeatures(statesData).forEach((ele, idx)=>{
-      if(id!=ele.values_.id){
+      if(selectedEmapId!=ele.values_.id){
         console.log(idx+")"+ele.values_.id);  
         features.push(ele);
       }
@@ -633,7 +709,7 @@ function emapDelete(id){//geometry == 해당 id
     map.addLayer(vector);
     console.log("---------------------");
   }
-  printMapLayers();
+  printMapLayers("지웠당");
 
   emapPopclose();//창 자동으로 닫기
 
