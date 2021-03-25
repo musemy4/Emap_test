@@ -170,15 +170,17 @@ let statesData = {"type":"FeatureCollection","features":[
 ////////////////////////////////////////////////////////////////////
 
 
-
+let createBtn = document.getElementById('createBtn');
 
 window.addEventListener('DOMContentLoaded', function(){ //실행될 코드
   document.getElementById('emapPop').style.display = 'none';
   //emap draw 리스너 달아주기
-  document.getElementById('createBtn').addEventListener("click", function(e){
-    e.stopPropagation();
-    createDraw();
-  });
+  // createBtn.addEventListener("click", function(e){
+  //   e.stopPropagation();
+  //   createDraw();
+  // });
+  createBtn.addEventListener("click", createDraw);
+  
   printMapLayers("키자마자");
 });
 
@@ -227,11 +229,25 @@ let map = new Map({
 ////////////////////////////////////////////////////////////////////
 
 let draw;
-let createBtn = document.getElementById('createBtn');
+
+function cancelDraw(){
+  createBtn.removeEventListener("click", cancelDraw);
+  createBtn.addEventListener("click", createDraw);
+
+  map.removeInteraction(draw);
+  console.log("draw End ==");
+  createBtn.innerHTML="Emap을 만들자";
+  createBtn.style.backgroundColor='brown';
+}
 
 //'EMAP을 만들자'버튼을 누르면
 function createDraw(){
+    createBtn.innerHTML="만들기 취소";
     createBtn.style.backgroundColor='darkturquoise';
+
+    createBtn.removeEventListener("click", createDraw);
+    createBtn.addEventListener("click", cancelDraw);
+
     addInteraction();
 }
 
@@ -266,11 +282,8 @@ function addInteraction() {
     draw_ing = true;
   })
   
-  draw.on('drawend', function(evt){
-    map.removeInteraction(draw);
-    console.log("draw End ==");
-    createBtn.style.backgroundColor='brown';
-  })
+  draw.on('drawend', cancelDraw);
+  
 }
   
 function saveNewEmap(evt){
@@ -485,7 +498,7 @@ function getEmap(coordinateX, floor){
 }
 
 function getFloorAsset(floorNow){
-  console.log(floorNow);
+  // console.log(floorNow);
 
   // var extent = [0, 0, 1000, 800];
   let floors = selectedEmap.floor;
@@ -601,27 +614,23 @@ function popEmap(selectedEmap){ // 1)
   let emapPopClose = document.querySelector('#emapPopClose');
   emapPopClose.onclick=emapPopclose;
   
-  console.log("floor>>")
-  console.log(selectedEmapfloor);
+  // 기존에 있던 층버튼들을 다 없앤다
+  let floorBtn = document.getElementById('floorBtn');
+  while(floorBtn.hasChildNodes()){
+    floorBtn.removeChild(floorBtn.firstChild);
+  }
 
   if(selectedEmapfloor==undefined){
     getEmap(selectedEmapId, undefined); 
     title.innerHTML = `[층정보없음]  ${selectedEmapName} / <span id="selectedId">${selectedEmapId}</span>`;
   } else {
-    /*get emap 
-    **********
-    */
+    //emap 층에 해당하는 그림으로 갈아치기
     getEmap(selectedEmapId, 1); 
 
     document.querySelector('.exp').style.display = "none";
     
     let floorLength = Object.keys(selectedEmapfloor).length;
     console.log(floorLength+"개 층입니다.");
-    let floorBtn = document.getElementById('floorBtn');
-
-    while(floorBtn.hasChildNodes()){
-      floorBtn.removeChild(floorBtn.firstChild);
-    }
 
     for(let i=0; i<floorLength;i++){
       let btn = document.createElement('button');
@@ -679,9 +688,7 @@ function emapDelete(){//geometry == 해당 id
     
   
     let features = [];
-  
-    console.log("selectedEmapId: "+selectedEmapId);
-
+ 
     // + 원래 있던것과 합쳐준다
     new GeoJSON().readFeatures(statesData).forEach((ele, idx)=>{
       if(selectedEmapId!=ele.values_.id){
@@ -689,12 +696,7 @@ function emapDelete(){//geometry == 해당 id
         features.push(ele);
       }
     });
-    console.log(features.length);
-    
-    // = 결과값
-    console.log("for end:::");
-    console.log(features);
-    console.log("::::::::::");
+ 
   
     statesData =JSON.parse(new GeoJSON().writeFeatures(features));
     
