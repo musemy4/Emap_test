@@ -1,8 +1,8 @@
 html, body{
-    padding: 0;
-    margin: 0;
-    height: 100%;
-    width: 100vw;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100vw;
 }
 h3 {
   display: inline-block;
@@ -27,6 +27,7 @@ button {
   font-size: 16px;
   color: white;
 }
+
 #createBtn:hover {
   background-color:darkturquoise;
 }
@@ -61,17 +62,29 @@ button {
   top: 10px;
 }
 
+.popup {
+  position: absolute;
+  background-color: white;
+  resize: both;
+  border: 1px solid brown;
+}
+
+#emapPoppop {
+  height:600px;
+  width: 800px;
+  top:10%;
+  left:10%;
+  z-index: 1001;
+}
+
+
 #mapid { height: 100%; }
 #emapPop {
-    position: absolute;
-    top:10px;
-    left:40px;
-    height:800px;
-    width: 1000px;
-    z-index: 1000;
-    background-color: white;
-    resize: both;
-    border: 1px solid brown;
+  top:10px;
+  left:40px;
+  height:800px;
+  width: 1000px;
+  z-index: 1000;
 }
 
 #emapPop_title {
@@ -79,47 +92,49 @@ button {
 }
 
 #emapid {
-    height: 680px;
-    width: 1000px;
+  height: 680px;
+  width: 1000px;
 }
 
 .exp{
   position: absolute;
   top: 50%;
   left: 30%;
-  z-index: -999;
 }
 
 .emapBtn_field {
   width:100%;
   height:40px;
   background-color: brown;
+  z-index:1001;
 }
 
 .emapBtn {
-    position:absolute;
-    bottom: 20px;
-    z-index: 1000;
-    border: 3px solid brown;
-    background-color: white;
-    color: black;
-    padding: 5px;
-    margin-right:3px;
-    height: 35px;
-    font-size: 15px;
-    cursor: pointer;
+  position:absolute;
+  bottom: 20px;
+  z-index: 1000;
+  border: 3px solid brown;
+  background-color: white;
+  color: black;
+  padding: 5px;
+  margin-right:3px;
+  height: 35px;
+  font-size: 15px;
+  cursor: pointer;
 }
 
-
-#emapDelete {
+#emapEdit {
   left: 20px;
 }
-#emapEdit {
+
+#emapDelete {
   left: 130px;
 }
 
-#assetEdit {
-  left: 230px;
+
+
+#emapClose {
+  right: 20px;
 }
 
 #emapPopClose {

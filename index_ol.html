@@ -9,9 +9,25 @@
   <body>
     <button type="button" id="createBtn">Emap을 만들자</button>
     <div id="hover"></div>
+    <!-- MAIN MAP -->
     <div id="mapid"></div>
-    <div id="emapPop" style="display: block;">
-      <h3 id="emapPop_title">Emap name here</h3>
+    
+    <!-- EMAP pop -->
+    <div class="popup" id="emapPoppop" style="display: none;" >
+      <h3 class="popupTitle" id="emapPoppop_title">평면도 관리</h3>
+      
+      
+      <div class="emapBtn_field">
+        <button class="emapBtn" id="emapPopClose" type="button">닫기</button>
+      </div>
+         
+    </div>
+
+    <!-- EMAP -->
+    <div class="popup" id="emapPop" style="display: block;">
+
+
+      <h3 class="popupTitle" id="emapPop_title">Emap name here</h3>
       <div id="floorBtn"></div>
       <div id="emapid">
       </div>
@@ -20,14 +36,15 @@
       </div> -->
       <div class="exp" style="display: none;">
         ⚠ 등록된 emap이 없습니다
-        <button type="button" id="addJpg">평면도 등록하기</button>
+        <button type="button" class="editFloorFile" id="editFF">평면도 등록하기</button>
       </div>
       <div class="emapBtn_field">
+        <button class="emapBtn editFloorFile" id="emapEdit" type="button">평면도 관리자 </button>
         <button class="emapBtn" id="emapDelete" type="button">Emap 지우기 </button>
-        <button class="emapBtn" id="emapEdit" type="button">평면도 관리 </button>
-        <button class="emapBtn" id="assetEdit" type="button">자산 관리</button>
-        <button class="emapBtn" id="emapPopClose" type="button">닫기</button>
+        <button class="emapBtn" id="emapClose" type="button">닫기</button>
       </div>
     </div>
+
+
   </body>
 </html>

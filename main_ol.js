@@ -585,20 +585,26 @@ let emapDelete_flag= false;
 // let selectedId;
 // let selectedBuildin;
 
-function emapPopclose(){
+function emapClose(){
   let emapPop = document.querySelector('#emapPop');
   emapPop.style.display="none";
 }
 
 function popEmap(selectedEmap){ // 1)
   //드래그 가능하게 처리
+  document.querySelectorAll('.popup').forEach((ele)=>{
+    console.log(ele)
+    dragElement(ele);
+  })
+
   console.log(selectedEmap); //{geometry: Polygon, name: "innodep", id: "126.891435", floor: {…}}
-  dragElement(document.getElementById('emapPop'));
   let selectedEmapId = selectedEmap.id;
   console.log("선택된 emap IDD:"+selectedEmapId);
   let selectedEmapName =  selectedEmap.name;
   let selectedEmapfloor =  selectedEmap.floor;
   let title = document.querySelector('#emapPop_title');
+
+
 
   if(!emapDelete_flag){
     document.getElementById('emapDelete').addEventListener("click", function(e){
@@ -611,8 +617,8 @@ function popEmap(selectedEmap){ // 1)
  
   let emapPop = document.querySelector('#emapPop');
   emapPop.style.display="block";
-  let emapPopClose = document.querySelector('#emapPopClose');
-  emapPopClose.onclick=emapPopclose;
+  let emapCloseBtn = document.querySelector('#emapClose');
+  emapCloseBtn.onclick=emapClose;
   
   // 기존에 있던 층버튼들을 다 없앤다
   let floorBtn = document.getElementById('floorBtn');
@@ -620,9 +626,18 @@ function popEmap(selectedEmap){ // 1)
     floorBtn.removeChild(floorBtn.firstChild);
   }
 
+  document.querySelectorAll('.editFloorFile').forEach((ele)=>{
+    ele.addEventListener("click", function(e){
+      e.stopImmediatePropagation();
+      emapPoppop();
+    }) 
+  });
+
   if(selectedEmapfloor==undefined){
     getEmap(selectedEmapId, undefined); 
     title.innerHTML = `[층정보없음]  ${selectedEmapName} / <span id="selectedId">${selectedEmapId}</span>`;
+  
+  
   } else {
     //emap 층에 해당하는 그림으로 갈아치기
     getEmap(selectedEmapId, 1); 
@@ -653,6 +668,17 @@ function popEmap(selectedEmap){ // 1)
   }
 }
 
+let emapPop = document.querySelector('#emapPoppop');
+
+function emapPoppop(){
+  emapPop.style.display = "block";
+  document.querySelector("#emapPopClose").addEventListener('click',emapPoppopClose);
+}
+
+function emapPoppopClose(){
+  emapPop.style.display = "none";
+
+}
 
 function changeFloorEmap(floor){
   
@@ -713,7 +739,7 @@ function emapDelete(){//geometry == 해당 id
   }
   printMapLayers("지웠당");
 
-  emapPopclose();//창 자동으로 닫기
+  emapclose();//창 자동으로 닫기
 
 }
 
